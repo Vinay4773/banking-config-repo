@@ -1,0 +1,50 @@
+server:
+  port:8080
+spring:
+	application:
+		name: api-gateway
+	profiles:
+		active:
+			-dev:
+	seccurity:
+		ouath2:
+			resourceserver:
+				jwt:
+					issuer-uri:http//localhost:8081/auth-service
+data:
+	redis:
+		 host: localhost:6371
+cloud:
+	geteway:
+		default-filters:
+		-name: RquestRateLimiter
+		args:
+			redis-rate-limiter.replenishRate: 5
+			redis-rate-limiter.burstCapacity: 10
+		routes:
+			-id: account-service
+			 uri: ld//ACCOUNT-SERVICE
+			 predicates:
+				 -path=/api/account/**
+				 fillters:
+					-StripPerfix=1
+				-id: trnasction-service
+				uri: lb://TRANSACTON-SERVICE
+				predicates:
+					-StripPerfix=1
+					- namwe: CircuitBraker
+					  args:
+							name: transactionCB
+eureka:
+	client:
+		service-url:
+			defaultzone: http://localhost:8761/eureka
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+        - health
+				- info
+				- prometheus
+						
